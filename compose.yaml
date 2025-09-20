@@ -8,6 +8,26 @@
 # database or a cache. For examples, see the Awesome Compose repository:
 # https://github.com/docker/awesome-compose
 services:
+  db:
+    image: postgres:15-alpine
+    container_name: chat-database
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=spring_chatdb
+      - POSTGRES_USER=springuser
+      - POSTGRES_PASSWORD=root
+    ports:
+      - 5432:5432
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - react-spring
+
   server:
     container_name: chat-backend
     restart: always
@@ -15,6 +35,13 @@ services:
       context: .
     ports:
       - 8080:8080
+    environment:
+      - POSTGRES_URL=jdbc:postgresql://db:5432/spring_chatdb
+      - POSTGRES_USERNAME=postgres
+      - POSTGRES_PASSWORD=postgres
+    depends_on:
+      db:
+        condition: service_healthy
     networks:
       - react-spring
 
@@ -22,45 +49,20 @@ services:
     container_name: chat-frontend
     build:
       context: chat-frontend
+      dockerfile: Dockerfile.dev
     ports:
-      - 5173:5173
+      - 3000:3000
+    volumes:
+      - ./chat-frontend:/usr/src/app
+      - /usr/src/app/node_modules
+    command: ['npm', 'run', 'dev', '--', '--host']
     depends_on:
       - server
     networks:
       - react-spring
 
+volumes:
+  db-data:
+
 networks:
   react-spring: {}
-# The commented out section below is an example of how to define a PostgreSQL
-# database that your application can use. `depends_on` tells Docker Compose to
-# start the database before your application. The `db-data` volume persists the
-# database data between container restarts. The `db-password` secret is used
-# to set the database password. You must create `db/password.txt` and add
-# a password of your choosing to it before running `docker-compose up`.
-#     depends_on:
-#       db:
-#         condition: service_healthy
-#   db:
-#     image: postgres
-#     restart: always
-#     user: postgres
-#     secrets:
-#       - db-password
-#     volumes:
-#       - db-data:/var/lib/postgresql/data
-#     environment:
-#       - POSTGRES_DB=example
-#       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
-#     expose:
-#       - 5432
-#     healthcheck:
-#       test: [ "CMD", "pg_isready" ]
-#       interval: 10s
-#       timeout: 5s
-#       retries: 5
-# volumes:
-#   db-data:
-# secrets:
-#   db-password:
-#     file: db/password.txt
-
