@@ -18,9 +18,9 @@ import lombok.NoArgsConstructor;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "chat_message")
 @Data
 @Builder
+@Table(name = "chat_message")
 public class ChatMessage {
 
   @Id
