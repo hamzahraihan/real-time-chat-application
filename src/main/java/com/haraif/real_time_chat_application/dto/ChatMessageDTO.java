@@ -12,14 +12,14 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ChatMessageDTO {
 
-  @NotBlank
-  private String sender;
+	@NotBlank
+	private String sender;
 
-  private String receiver;
+	private String receiver;
 
-  @NotBlank
-  private String content;
+	@NotBlank
+	private String content;
 
-  private String roomId;
+	private String roomId;
 
 }
