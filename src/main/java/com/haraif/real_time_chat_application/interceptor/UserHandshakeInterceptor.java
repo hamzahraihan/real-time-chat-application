@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
+// Identify users for private messaging (handshake / principal)
+
 @Component
 public class UserHandshakeInterceptor implements HandshakeInterceptor {
 
