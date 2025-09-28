@@ -1,5 +1,7 @@
 package com.haraif.real_time_chat_application.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +13,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class ChatMessageDTO {
+
+	@JsonIgnore
+	private String id;
 
 	@NotBlank
 	private String sender;
