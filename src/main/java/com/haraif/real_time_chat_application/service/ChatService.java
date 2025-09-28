@@ -2,6 +2,7 @@ package com.haraif.real_time_chat_application.service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -31,6 +32,7 @@ public class ChatService {
 	@Transactional
 	public ChatMessage handleRoomMessage(ChatMessageDTO dto, String roomId) {
 		ChatMessage msg = ChatMessage.builder()
+				.id(UUID.randomUUID().toString())
 				.sender(dto.getSender())
 				.content(dto.getContent())
 				.timestamp(Instant.now())
@@ -47,6 +49,7 @@ public class ChatService {
 	@Transactional
 	public ChatMessage handlePrivateMessage(ChatMessageDTO dto) {
 		ChatMessage msg = ChatMessage.builder()
+				.id(UUID.randomUUID().toString())
 				.sender(dto.getSender())
 				.content(dto.getContent())
 				.receiver(dto.getReceiver())
