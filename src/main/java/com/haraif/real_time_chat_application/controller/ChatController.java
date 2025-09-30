@@ -16,6 +16,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class ChatController {
@@ -40,5 +41,13 @@ public class ChatController {
 	@ResponseBody
 	public List<ChatMessage> getRoomHistory(@PathVariable("roomId") String roomId) {
 		return chatService.getRoomHistory(roomId);
+	}
+
+	// REST endpoint to fetch private message history (so frontend can load history
+	// on join)
+	@GetMapping(path = "/api/users/{sender}/{receiver}/history", produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public List<ChatMessage> getPrivateMessage(@PathVariable String sender, @PathVariable String receiver) {
+		return chatService.getPrivateChatHistory(sender, receiver);
 	}
 }
