@@ -26,8 +26,8 @@ public class ChatService {
 	@Autowired
 	private ChatMessageRepository chatMessageRepository;
 
-	@Autowired
-	private ChatRoomRepository chatRoomRepository;
+	// @Autowired
+	// private ChatRoomRepository chatRoomRepository;
 
 	@Transactional
 	public ChatMessage handleRoomMessage(ChatMessageDTO dto, String roomId) {
@@ -66,8 +66,14 @@ public class ChatService {
 	// helper: fetch recent message for a room
 	@Transactional(readOnly = true)
 	public List<ChatMessage> getRoomHistory(String roomId) {
-		List<ChatMessage> chatMessage = chatMessageRepository.findByRoomIdOrderByTimestampAsc(roomId);
+		List<ChatMessage> chatMessages = chatMessageRepository.findByRoomIdOrderByTimestampAsc(roomId);
 
-		return chatMessage;
+		return chatMessages;
+	}
+
+	public List<ChatMessage> getPrivateChatHistory(String sender, String receiver) {
+		List<ChatMessage> chatMessages = chatMessageRepository.findBySenderAndReceiverOrderByTimestampAsc(sender, receiver);
+
+		return chatMessages;
 	}
 }
