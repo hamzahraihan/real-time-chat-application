@@ -12,5 +12,4 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, String
   List<ChatMessage> findByRoomIdOrderByTimestampAsc(String roomId);
 
   List<ChatMessage> findBySenderAndReceiverOrderByTimestampAsc(String sender, String receiver);
-
 }
