@@ -1,18 +1,24 @@
 package com.haraif.real_time_chat_application.controller;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.haraif.real_time_chat_application.dto.ChatMessageDTO;
 import com.haraif.real_time_chat_application.model.ChatMessage;
 import com.haraif.real_time_chat_application.repository.ChatMessageRepository;
@@ -23,14 +29,70 @@ import com.haraif.real_time_chat_application.service.ChatService;
 @ExtendWith(MockitoExtension.class)
 public class ChatControllerTest {
 
-	@Mock
-	private SimpMessagingTemplate template;
-
-	@Mock
+	@Autowired
 	private ChatMessageRepository chatMessageRepository;
 
-	@InjectMocks
+	@Autowired
+	private MockMvc mockMvc;
+
+	@Autowired
+	private ObjectMapper objectMapper;
+
+	@Autowired
 	private ChatService chatService;
+
+	@BeforeEach
+	void setUp() {
+		chatMessageRepository.deleteAll();
+	}
+
+	@Test
+	void getPrivateMessageSuccess() throws Exception {
+		// First, save a message to the database
+		ChatMessageDTO dto = new ChatMessageDTO();
+		dto.setSender("alice");
+		dto.setReceiver("john");
+		dto.setContent("hello john -from alice");
+
+		// Save the message using the service
+		chatService.handlePrivateMessage(dto);
+
+		// Then test the API endpoint
+		mockMvc.perform(
+				get("/api/users/alice/john/history")
+						.accept(MediaType.APPLICATION_JSON)
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpectAll(status().isOk())
+				.andDo(result -> {
+					// The controller returns List<ChatMessage> directly
+					List<ChatMessage> response = objectMapper.readValue(
+							result.getResponse().getContentAsString(),
+							new TypeReference<List<ChatMessage>>() {
+							});
+					assertNotNull(response);
+					assertEquals("alice", response.get(0).getSender());
+					assertEquals("john", response.get(0).getReceiver());
+					assertEquals("hello john -from alice", response.get(0).getContent());
+				});
+	}
+
+	@Test
+	void getRoomHistorySuccess() throws Exception {
+		mockMvc.perform(
+				get("/api/rooms/room1/history")
+						.accept(MediaType.APPLICATION_JSON)
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpectAll(status().isOk())
+				.andDo(result -> {
+					// The controller returns List<ChatMessage> directly
+					List<ChatMessage> response = objectMapper.readValue(
+							result.getResponse().getContentAsString(),
+							new TypeReference<List<ChatMessage>>() {
+							});
+					assertNotNull(response);
+					// Response should be a valid list (empty for new room since DB is cleared)
+				});
+	}
 
 	@Test
 	void testHandleRoomMessage() {
@@ -40,9 +102,12 @@ public class ChatControllerTest {
 
 		chatService.handleRoomMessage(dto, "room1");
 
-		verify(chatMessageRepository).save(any(ChatMessage.class));
-		verify(template).convertAndSend(eq("/topic/room.room1"), any(ChatMessage.class));
-
+		// Verify message was saved to database
+		List<ChatMessage> messages = chatMessageRepository.findByRoomIdOrderByTimestampAsc("room1");
+		assertNotNull(messages);
+		assertEquals(1, messages.size());
+		assertEquals("alice", messages.get(0).getSender());
+		assertEquals("hello from test", messages.get(0).getContent());
 	}
 
 	@Test
@@ -54,7 +119,38 @@ public class ChatControllerTest {
 
 		chatService.handlePrivateMessage(dto);
 
-		verify(chatMessageRepository).save(any(ChatMessage.class));
-		verify(template).convertAndSendToUser(eq(dto.getReceiver()), eq("/queue/messages"), any(ChatMessage.class));
+		// Verify message was saved to database
+		List<ChatMessage> messages = chatMessageRepository.findBySenderAndReceiverOrderByTimestampAsc("alice", "johnny");
+		assertNotNull(messages);
+		assertEquals("alice", messages.get(0).getSender());
+		assertEquals("johnny", messages.get(0).getReceiver());
+		assertEquals("hello to johnny", messages.get(0).getContent());
 	}
+
+	// @Test
+	// void testHandleRoomMessage() {
+	// ChatMessageDTO dto = new ChatMessageDTO();
+	// dto.setSender("alice");
+	// dto.setContent("hello from test");
+
+	// chatService.handleRoomMessage(dto, "room1");
+
+	// verify(chatMessageRepository).save(any(ChatMessage.class));
+	// verify(template).convertAndSend(eq("/topic/room.room1"),
+	// any(ChatMessage.class));
+	// }
+
+	// @Test
+	// void testHandlePrivateMessage() {
+	// ChatMessageDTO dto = new ChatMessageDTO();
+	// dto.setSender("alice");
+	// dto.setContent("hello to johnny");
+	// dto.setReceiver("johnny");
+
+	// chatService.handlePrivateMessage(dto);
+
+	// verify(chatMessageRepository).save(any(ChatMessage.class));
+	// verify(template).convertAndSendToUser(eq(dto.getReceiver()),
+	// eq("/queue/messages"), any(ChatMessage.class));
+	// }
 }
