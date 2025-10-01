@@ -71,6 +71,7 @@ public class ChatService {
 		return chatMessages;
 	}
 
+	@Transactional(readOnly = true)
 	public List<ChatMessage> getPrivateChatHistory(String sender, String receiver) {
 		List<ChatMessage> chatMessages = chatMessageRepository.findBySenderAndReceiverOrderByTimestampAsc(sender, receiver);
 
