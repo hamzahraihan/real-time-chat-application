@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.haraif.real_time_chat_application.dto.ChatMessageDTO;
 import com.haraif.real_time_chat_application.model.ChatMessage;
 import com.haraif.real_time_chat_application.repository.ChatMessageRepository;
-import com.haraif.real_time_chat_application.repository.ChatRoomRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -58,7 +57,10 @@ public class ChatService {
 				.build();
 
 		chatMessageRepository.save(msg);
-		messagingTemplate.convertAndSendToUser(dto.getReceiver(), "/queue/messages", msg);
+
+		// Send to receiver
+		messagingTemplate.convertAndSendToUser(dto.getReceiver(), "/topic/private", msg);
+
 		log.info("[private] {} -> {}: {}", msg.getSender(), msg.getReceiver(), msg.getContent());
 		return msg;
 	}
@@ -73,7 +75,8 @@ public class ChatService {
 
 	@Transactional(readOnly = true)
 	public List<ChatMessage> getPrivateChatHistory(String sender, String receiver) {
-		List<ChatMessage> chatMessages = chatMessageRepository.findBySenderAndReceiverOrderByTimestampAsc(sender, receiver);
+		// Fetch messages in both directions between the two users
+		List<ChatMessage> chatMessages = chatMessageRepository.findBidirectionalChatHistory(sender, receiver);
 
 		return chatMessages;
 	}
