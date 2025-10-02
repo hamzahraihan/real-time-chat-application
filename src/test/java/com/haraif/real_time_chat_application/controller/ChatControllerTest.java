@@ -3,6 +3,7 @@ package com.haraif.real_time_chat_application.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
@@ -125,6 +126,45 @@ public class ChatControllerTest {
 		assertEquals("alice", messages.get(0).getSender());
 		assertEquals("johnny", messages.get(0).getReceiver());
 		assertEquals("hello to johnny", messages.get(0).getContent());
+	}
+
+	@Test
+	void testBidirectionalChatHistory() throws Exception {
+		// Send message from alice to johnny
+		ChatMessageDTO dto1 = new ChatMessageDTO();
+		dto1.setSender("alice");
+		dto1.setContent("hello johnny");
+		dto1.setReceiver("johnny");
+		chatService.handlePrivateMessage(dto1);
+
+		// Send message from johnny to alice
+		ChatMessageDTO dto2 = new ChatMessageDTO();
+		dto2.setSender("johnny");
+		dto2.setContent("hello alice");
+		dto2.setReceiver("alice");
+		chatService.handlePrivateMessage(dto2);
+
+		// Test API call - should work both ways
+		mockMvc.perform(
+				get("/api/users/alice/johnny/history")
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(2))
+				.andExpect(jsonPath("$[0].sender").value("alice"))
+				.andExpect(jsonPath("$[0].content").value("hello johnny"))
+				.andExpect(jsonPath("$[1].sender").value("johnny"))
+				.andExpect(jsonPath("$[1].content").value("hello alice"));
+
+		// Test reverse API call - should return same conversation
+		mockMvc.perform(
+				get("/api/users/johnny/alice/history")
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(2))
+				.andExpect(jsonPath("$[0].sender").value("alice"))
+				.andExpect(jsonPath("$[0].content").value("hello johnny"))
+				.andExpect(jsonPath("$[1].sender").value("johnny"))
+				.andExpect(jsonPath("$[1].content").value("hello alice"));
 	}
 
 	// @Test
