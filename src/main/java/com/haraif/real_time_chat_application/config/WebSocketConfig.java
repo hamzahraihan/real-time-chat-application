@@ -26,9 +26,23 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry registry) {
-		registry.enableSimpleBroker("/topic", "/queue");
+		registry.enableSimpleBroker("/topic");
 		registry.setApplicationDestinationPrefixes("/app");
-		registry.setUserDestinationPrefix("/user");
+		// registry.setUserDestinationPrefix("/user");
 	}
+
+	// @Bean
+	// DefaultHandshakeHandler handshakeHandler() {
+	// return new DefaultHandshakeHandler() {
+	// @Override
+	// protected Principal determineUser(ServerHttpRequest request, WebSocketHandler
+	// wsHandler,
+	// Map<String, Object> attributes) {
+	// // For demo: use a query param ?username=alice
+	// String username = request.getURI().getQuery().replace("username=", "");
+	// return () -> username;
+	// }
+	// };
+	// }
 
 }
