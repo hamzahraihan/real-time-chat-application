@@ -1,5 +1,6 @@
 package com.haraif.real_time_chat_application.controller;
 
+import java.security.Principal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,6 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class ChatController {
@@ -32,7 +32,7 @@ public class ChatController {
 
 	// client sends to /app/chat.private
 	@MessageMapping("/chat.private")
-	public void sendPrivate(@Valid ChatMessageDTO dto) {
+	public void sendPrivate(@Valid ChatMessageDTO dto, Principal principal) {
 		chatService.handlePrivateMessage(dto);
 	}
 
