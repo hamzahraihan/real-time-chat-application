@@ -1,0 +1,3 @@
+[submodule "chat-frontend"]
+	path = chat-frontend 
+	url = https://github.com/hamzahraihan/chat-frontend 
