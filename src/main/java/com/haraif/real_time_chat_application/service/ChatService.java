@@ -59,7 +59,14 @@ public class ChatService {
 		chatMessageRepository.save(msg);
 
 		// Send to receiver
-		messagingTemplate.convertAndSendToUser(dto.getReceiver(), "/topic/private", msg);
+		log.info("Sending private message to receiver: {} on topic: /user/{}/queue/private", dto.getReceiver(),
+				dto.getReceiver());
+		messagingTemplate.convertAndSendToUser(msg.getReceiver(), "/queue/private", msg);
+
+		// sender also receiver it is own message
+		log.info("Sending private message to sender: {} on topic: /user/{}/queue/private", dto.getSender(),
+				dto.getSender());
+		messagingTemplate.convertAndSendToUser(msg.getSender(), "/queue/private", msg);
 
 		log.info("[private] {} -> {}: {}", msg.getSender(), msg.getReceiver(), msg.getContent());
 		return msg;
