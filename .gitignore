@@ -4,6 +4,10 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### frontend
+chat-frontend/node_modules
+chat-frontend/.env
+
 ### STS ###
 .apt_generated
 .classpath
@@ -31,4 +35,3 @@ build/
 
 ### VS Code ###
 .vscode/
-chat-frontend
