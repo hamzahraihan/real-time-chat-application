@@ -7,6 +7,7 @@ target/
 ### frontend
 chat-frontend/node_modules
 chat-frontend/.env
+chat-frontend/.env.*
 
 ### STS ###
 .apt_generated
