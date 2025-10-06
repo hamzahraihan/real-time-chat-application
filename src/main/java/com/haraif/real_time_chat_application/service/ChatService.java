@@ -2,6 +2,7 @@ package com.haraif.real_time_chat_application.service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.haraif.real_time_chat_application.controller.WebSocketEventListener;
 import com.haraif.real_time_chat_application.dto.ChatMessageDTO;
 import com.haraif.real_time_chat_application.model.ChatMessage;
 import com.haraif.real_time_chat_application.repository.ChatMessageRepository;
@@ -25,6 +27,9 @@ public class ChatService {
 	@Autowired
 	private ChatMessageRepository chatMessageRepository;
 
+	@Autowired
+	private WebSocketEventListener onlineUsersService;
+
 	// @Autowired
 	// private ChatRoomRepository chatRoomRepository;
 
@@ -35,7 +40,7 @@ public class ChatService {
 				.sender(dto.getSender())
 				.content(dto.getContent())
 				.timestamp(Instant.now())
-				.type(ChatMessage.MessageType.CHAT)
+				.type(dto.getType())
 				.roomId(roomId)
 				.build();
 
@@ -53,7 +58,7 @@ public class ChatService {
 				.content(dto.getContent())
 				.receiver(dto.getReceiver())
 				.timestamp(Instant.now())
-				.type(ChatMessage.MessageType.PRIVATE)
+				.type(dto.getType())
 				.build();
 
 		chatMessageRepository.save(msg);
@@ -86,5 +91,16 @@ public class ChatService {
 		List<ChatMessage> chatMessages = chatMessageRepository.findBidirectionalChatHistory(sender, receiver);
 
 		return chatMessages;
+	}
+
+	// Online presence tracking methods
+	public boolean isUserOnline(String username) {
+		// This will be injected from WebSocketEventListener
+		return onlineUsersService.isUserOnline(username);
+	}
+
+	public Set<String> getOnlineUsers() {
+		// This will be injected from WebSocketEventListener
+		return onlineUsersService.getOnlineUsers();
 	}
 }
