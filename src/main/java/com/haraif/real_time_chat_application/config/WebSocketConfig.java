@@ -45,7 +45,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 			protected Principal determineUser(ServerHttpRequest request,
 					WebSocketHandler wsHandler,
 					Map<String, Object> attributes) {
-				return (Principal) attributes.get("principal"); // ✅ return your StompPrincipal
+				return (Principal) attributes.get("principal");
 			}
 		};
 	}
