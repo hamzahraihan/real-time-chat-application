@@ -2,7 +2,6 @@ package com.haraif.real_time_chat_application.controller;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -52,17 +51,4 @@ public class ChatController {
 		return chatService.getPrivateChatHistory(sender, receiver);
 	}
 
-	// REST endpoint to check if a user is online
-	@GetMapping(path = "/api/users/{username}/online", produces = MediaType.APPLICATION_JSON_VALUE)
-	@ResponseBody
-	public boolean isUserOnline(@PathVariable("username") String username) {
-		return chatService.isUserOnline(username);
-	}
-
-	// REST endpoint to get all online users
-	@GetMapping(path = "/api/users/online", produces = MediaType.APPLICATION_JSON_VALUE)
-	@ResponseBody
-	public Set<String> getOnlineUsers() {
-		return chatService.getOnlineUsers();
-	}
 }
