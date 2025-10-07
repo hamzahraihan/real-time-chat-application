@@ -12,6 +12,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+import com.haraif.real_time_chat_application.dto.PresenceMessageDTO;
+import com.haraif.real_time_chat_application.dto.PresenceMessageDTO.PresenceType;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Component
@@ -31,7 +34,7 @@ public class WebSocketEventListener {
 			String username = user.getName();
 			if (onlineUsers.add(username)) {
 				log.info("User {} connected", username);
-				broadcastPresence();
+				broadcastUserStatus(PresenceType.USER_ONLINE, username);
 			}
 		}
 	}
@@ -44,13 +47,13 @@ public class WebSocketEventListener {
 			String username = user.getName();
 			if (onlineUsers.remove(username)) {
 				log.info("User {} disconnected", username);
-				broadcastPresence();
+				broadcastUserStatus(PresenceType.USER_OFFLINE, username);
 			}
 		}
 	}
 
-	private void broadcastPresence() {
-		template.convertAndSend("/topic/presence", onlineUsers);
+	private void broadcastUserStatus(PresenceType type, String username) {
+		template.convertAndSend("/topic/presence", new PresenceMessageDTO(type, username, Set.copyOf(onlineUsers)));
 	}
 
 	// Public methods to check online status
