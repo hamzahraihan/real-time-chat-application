@@ -2,11 +2,19 @@
 
 -- Insert sample users
 INSERT INTO
-    app_user (id, username)
-VALUES ('user1', 'john_doe'),
-    ('user2', 'jane_smith'),
-    ('user3', 'alice_johnson'),
-    ('user4', 'bob_wilson')
+    app_user (id, username, password)
+VALUES (
+        'user1',
+        'somari_jack',
+        'test'
+    ),
+    ('user2', 'jane_smith', 'test'),
+    (
+        'user3',
+        'alice_johnson',
+        'test'
+    ),
+    ('user4', 'bob_wilson', 'test')
 ON CONFLICT (id) DO NOTHING;
 
 -- Insert sample chat rooms
