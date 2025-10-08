@@ -3,7 +3,8 @@
 -- Create app_user table
 CREATE TABLE IF NOT EXISTS app_user (
     id VARCHAR(255) PRIMARY KEY,
-    username VARCHAR(100) UNIQUE NOT NULL
+    username VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(100) NOT NULL
 );
 
 -- Create chat_room table
