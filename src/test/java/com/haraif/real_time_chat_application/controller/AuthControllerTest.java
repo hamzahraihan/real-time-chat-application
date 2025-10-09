@@ -58,6 +58,5 @@ public class AuthControllerTest {
           });
           assertNotNull(response.getToken());
         });
-
   }
 }
