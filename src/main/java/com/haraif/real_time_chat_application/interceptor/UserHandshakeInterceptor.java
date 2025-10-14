@@ -33,14 +33,21 @@ public class UserHandshakeInterceptor implements HandshakeInterceptor {
 		}
 
 		HttpServletRequest httpServletRequest = serverHttpRequest.getServletRequest();
+		String token = null;
 
 		String authHeader = httpServletRequest.getHeader("Authorization");
-		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+		if (authHeader != null && authHeader.startsWith("Bearer ")) {
+			token = authHeader.substring(7); // removing bearer
+		}
+
+		if (token == null) {
+			token = httpServletRequest.getParameter("token");
+		}
+
+		if (token == null) {
 			log.warn("Missing or invalid Authorization header");
 			return false;
 		}
-
-		String token = authHeader.substring(7); // removing bearer
 
 		Jwt jwt = jwtDecoder.decode(token);
 		String username = jwt.getSubject();
