@@ -1,6 +1,7 @@
 package com.haraif.real_time_chat_application.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,12 +20,12 @@ public class AuthController {
   @Autowired
   private AuthService authService;
 
-  @PostMapping("/register")
+  @PostMapping(path = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<AuthResponseDTO> register(@RequestBody AuthRequestDTO request) {
     return authService.register(request);
   }
 
-  @PostMapping("/login")
+  @PostMapping(path = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<AuthResponseDTO> login(@RequestBody AuthRequestDTO dto) {
     return authService.login(dto);
   }
