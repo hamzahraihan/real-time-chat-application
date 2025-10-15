@@ -19,11 +19,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 	@Autowired
 	private UserHandshakeInterceptor userHandshakeInterceptor;
 
+	@Autowired
+	private WebSocketHandshakeHandler webSocketHandshakeHandler;
+
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		registry.addEndpoint("/ws")
-				.addInterceptors(userHandshakeInterceptor)
-				// .setHandshakeHandler(handshakeHandler())
+				.addInterceptors(userHandshakeInterceptor) // interceptor to validate JWT token during the handshake
+				.setHandshakeHandler(webSocketHandshakeHandler) // extracts the authenticated username and sets it as a
+																												// websocket principal
 				.setAllowedOriginPatterns("*");
 	}
 
