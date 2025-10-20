@@ -27,7 +27,12 @@ public class AuthService {
   public ResponseEntity<AuthResponseDTO> register(AuthRequestDTO dto) {
     // checking if username is already taken
     if (appUserRepository.findByUsername(dto.getUsername()).isPresent()) {
-      return ResponseEntity.badRequest().body(AuthResponseDTO.builder().error("username has been taken").build());
+      return ResponseEntity.badRequest().body(AuthResponseDTO.builder().message("username has been taken").build());
+    }
+
+    if (dto.getUsername().isEmpty() && dto.getPassword().isEmpty()) {
+      return ResponseEntity.badRequest()
+          .body(AuthResponseDTO.builder().message("username or password is blank").build());
     }
 
     // create a new user if username is available
@@ -48,6 +53,11 @@ public class AuthService {
     if (appUserRepository.findByUsername(dto.getUsername()).isEmpty()) {
       return ResponseEntity.status(HttpStatusCode.valueOf(401))
           .body(AuthResponseDTO.builder().error("401 UNAUTHORIZED").message("Username or password is invalid").build());
+    }
+
+    if (dto.getUsername().isEmpty() && dto.getPassword().isEmpty()) {
+      return ResponseEntity.badRequest()
+          .body(AuthResponseDTO.builder().message("username or password is blank").build());
     }
 
     AppUser user = appUserRepository.findByUsername(dto.getUsername()).orElseThrow();
